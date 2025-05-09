@@ -1,0 +1,55 @@
+<div class="game-container">
+  <div class="ui">
+    <div class="status">
+      <span class="floor">Floor: {{ currentFloor }}</span>
+      <span class="health">Health: <span class="health-value">{{ playerHealth }}</span></span>
+      <span class="hose">Hose: <span class="hose-type">{{ getHoseDisplay() }}</span></span>
+    </div>
+    <div class="inventory">
+      <div class="inventory-slot" *ngFor="let slot of [1,2,3,4]"></div>
+    </div>
+    <button (click)="restartGame()">Restart</button>
+    <h3 *ngIf="gameWon" class="win-message">You Win!</h3>
+    <h3 *ngIf="gameLost" class="lose-message">Game Over!</h3>
+  </div>
+
+  <div class="grid" [style.grid-template-columns]="'repeat(' + viewportWidth + ', ' + cellSize + 'px)'">
+    <div *ngFor="let row of visibleGrid; let visY = index" class="row-placeholder">
+      <div
+        *ngFor="let cell of row; let visX = index"
+        class="cell"
+        [style.width.px]="cellSize"
+        [style.height.px]="cellSize"
+        [class.outer-wall]="grid[visY + viewportOffsetY][visX + viewportOffsetX] === 'outer-wall'"
+        [class.inner-wall]="grid[visY + viewportOffsetY][visX + viewportOffsetX] === 'inner-wall'"
+        [class.player]="isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.player-damaged]="isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY) && flashPlayer"
+        [class.fire]="hasFire(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.blue-fire]="hasBlueFire(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.blue-fire-damaged]="isBlueFireFlashing(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.water]="hasWater(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.stairway]="isStairway(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.upgrade]="isUpgradeAt(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.basic-hose]="isBasicHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.spread-hose]="isSpreadHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.wide-hose]="isWideHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY)"
+        [class.launch-hose]="isLaunchHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY)">
+        
+        <span *ngIf="isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">👨‍🚒</span>
+        <span *ngIf="hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">💧</span>
+        <span *ngIf="hasFire(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">
+          🔥{{ getFireCountdown(visX + viewportOffsetX, visY + viewportOffsetY) }}
+        </span>
+        <span *ngIf="hasBlueFire(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">
+          🌀 <span style="font-size:11px;"> {{ getBlueFireHealth(visX + viewportOffsetX, visY + viewportOffsetY) }} </span>
+        </span>
+        <span *ngIf="isStairway(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">⬇️</span>
+        <span *ngIf="isUpgradeAt(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">🔧</span>
+        <span *ngIf="isBasicHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">B</span>
+        <span *ngIf="isSpreadHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">S</span>
+        <span *ngIf="isWideHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">W</span>
+        <span *ngIf="isLaunchHosePickupAt(visX + viewportOffsetX, visY + viewportOffsetY) && !hasWater(visX + viewportOffsetX, visY + viewportOffsetY) && !isPlayerAt(visX + viewportOffsetX, visY + viewportOffsetY)">L</span>
+      </div>
+    </div>
+  </div>
+</div>
